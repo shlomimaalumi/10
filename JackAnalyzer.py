@@ -12,6 +12,7 @@ from CompilationEngine import CompilationEngine
 from JackTokenizer import JackTokenizer
 
 
+
 def analyze_file(
         input_file: typing.TextIO, output_file: typing.TextIO) -> None:
     """Analyzes a single file.

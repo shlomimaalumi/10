@@ -8,6 +8,8 @@ Unported [License](https://creativecommons.org/licenses/by-nc-sa/3.0/).
 import typing
 import re
 
+last_one=''
+
 keyword_list = ['class', 'constructor', 'function', 'method', 'field',
                 'static', 'var', 'int', 'char', 'boolean', 'void', 'true',
                 'false', 'null', 'this', 'let', 'do', 'if', 'else',
@@ -17,7 +19,8 @@ close_symbols = ['}', ')', ']', '>']
 symbol_list = ['{', '}', '(', ')', '[', ']', '.', ',', ';', '+',
                '-', '*', '/', '&', ',', '<', '>', '=', '~', '^', '#']
 
-
+temp2 = False
+temp3=False
 # region helper function
 def check_if_var_name(string: str) -> bool:
     if string[0] == '"':
@@ -168,7 +171,21 @@ class JackTokenizer:
             str: the type of the current token, can be
             "KEYWORD", "SYMBOL", "IDENTIFIER", "INT_CONST", "STRING_CONST"
         """
-        pass
+        current_token = self.get_token()
+        if current_token in keyword_list:
+            return "KEYWORD"
+        elif current_token in symbol_list:
+            return "SYMBOL"
+        elif check_if_var_name(current_token):
+            return "IDENTIFIER"
+        elif is_constant_number(current_token):
+            return "INT_CONST"
+        elif current_token[0] == '"' and current_token[-1] == '"':
+            return "STRING_CONST"
+        else:
+            raise TypeError(
+                f"token_type function error token type unknown\n the input"
+                f" was {self.get_token()}")
 
     def keyword(self) -> str:
         """
@@ -191,8 +208,10 @@ class JackTokenizer:
             symbol: '{' | '}' | '(' | ')' | '[' | ']' | '.' | ',' | ';' | '+' | 
               '-' | '*' | '/' | '&' | '|' | '<' | '>' | '=' | '~' | '^' | '#'
         """
-        # Your code goes here!
-        pass
+        if self.token_type() == "SYMBOL":
+            return self.get_token()
+        raise ValueError(
+            f"symbol function wrong, the function get: {self.get_token()}")
 
     def identifier(self) -> str:
         """
