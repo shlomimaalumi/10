@@ -261,11 +261,13 @@ class JackTokenizer:
         pattern, open, close = r'/\*\*(.*?)\*\/', "/**", "*/"
         is_comment = False
         input_lines = input_stream.read().splitlines()
-        # Use the re.sub() method to search for the pattern and replace it with
-        # an empty string
+
         for line in input_lines:
+            if line=='   /** Constructs a new Square Game. */':
+                x=7
+            line = line.strip()
             if '"' not in line:
-                line = re.sub(pattern, '"', line)
+                line = re.sub(pattern, '', line)
             else:
                 while line.rfind('"') < line.rfind("/**") and line.rfind(
                         '/**') < line.rfind("*/"):
@@ -283,7 +285,9 @@ class JackTokenizer:
                 continue
             if close in line:
                 is_comment = False
-            if line and '/' == line[0] and line[1] == '/':
+            if len(line)==0:
+                continue
+            if len(line)!=0 and '/' == line[0] and line[1] == '/':
                 continue
             else:
                 line_list = line.split(" ")
@@ -291,22 +295,33 @@ class JackTokenizer:
                     comment_idx = line_list.index('//')
                     list1 = list(line_list[0:comment_idx])
                     str = " ".join(list1).strip()
-                    if str:
+                    if len(str)!=0:
                         self.file.append(str)
                 else:
-                    if line:
+                    if len(line) != 0:
                         self.file.append(line)
 
     def token_word(self, word: str):
+        global last_one,temp3
+        if len(word)!=0 and word[0] =='"' and len(last_one)!=0:
+            if temp3==True:
+                last_one+=' '
+            self.tokens.append(last_one+'"')
+            self.token_word(word[1:])
+            return
+        last_one=""
         if len(word) == 0:
             return
         elif word in keyword_list:
             self.tokens.append(word)
+            return
         elif is_constant_number(word):
             self.tokens.append(word)
+            return
             # self.tokens_type_list.append("INT_CONST")
         elif check_if_var_name(word):
             self.tokens.append(word)
+            return
             # if word[0] != '"':
             #     self.tokens_type_list.append("IDENTIFIER")
             # else:
@@ -315,6 +330,7 @@ class JackTokenizer:
             self.tokens.append(word[0])
             # self.tokens_type_list.append("SYMBOL")
             self.token_word(word[1:])
+            return
         else:
             for ind, c in enumerate(word):
                 if c in symbol_list:
@@ -323,12 +339,61 @@ class JackTokenizer:
                     # self.tokens_type_list.append("SYMBOL")
                     self.token_word(word[ind:])
                     return
+        last_one=word
+        # global temp2
+        # if len(word) == 0:
+        #     return
+        # if word=="NUMBERS?":
+        #     x=8
+        # if word=='"HOW':
+        #     x=7
+        # elif word in keyword_list:
+        #     self.tokens.append(word)
+        #     return
+        # elif is_constant_number(word):
+        #     self.tokens.append(word)
+        #     return
+        #     # self.tokens_type_list.append("INT_CONST")
+        # elif check_if_var_name(word):
+        #     self.tokens.append(word)
+        #     return
+        #     # if word[0] != '"':
+        #     #     self.tokens_type_list.append("IDENTIFIER")
+        #     # else:
+        #     #     self.tokens_type_list.append("STRING_CONST")
+        # elif word[0] in symbol_list:
+        #     self.tokens.append(word[0])
+        #     # self.tokens_type_list.append("SYMBOL")
+        #     self.token_word(word[1:])
+        #     return
+        # else:
+        #     for ind, c in enumerate(word):
+        #         if c in symbol_list:
+        #             temp = word[:ind]
+        #             self.tokens.append(word[:ind])
+        #             self.token_word(word[ind:])
+        #             return
+        # if '"' in word and temp2:
+        #     self.tokens.append(word[:word.index('"')])
+        #     # self.tokens_type_list.append("SYMBOL")
+        #     temp2= False
+        #     self.token_word(word[word.index('"'):])
+        # if word[0]=='"':
+        #     temp2=True
 
     def get_by_tokens(self):
-        for line in self.file:
-            line = line.split()
+        global temp3
+        for ind,line in enumerate(self.file):
+            line2 = line.split()
+            # if ind< len(self.file)-1 and self.file[ind+1]=='"':
+            #     line+='"'
+            # if line == '"':
+            #     continue
+            temp3=False
+            if line.rfind('"')>0 and line[line.rfind('"')-1]==' ':
+                temp3=True
 
-            for word in line:
+            for word in line2:
                 self.token_word(word)
 
     def connect_strings(self):
@@ -356,5 +421,6 @@ class JackTokenizer:
         if not self.has_more_tokens():
             raise ValueError(
                 'has more command function wrong, token out of range"')
+        return self.tokens[self.pos]
 
     # endregion

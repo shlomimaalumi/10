@@ -11,6 +11,9 @@ import typing
 from CompilationEngine import CompilationEngine
 from JackTokenizer import JackTokenizer
 
+T_types_dic = {"INT_CONST": "integerConstant", "SYMBOL": "symbol",
+               "IDENTIFIER": "identifier","KEYWORD": "keyword",
+               "STRING_CONST": "stringConstant"}
 
 
 def analyze_file(
@@ -22,12 +25,27 @@ def analyze_file(
         output_file (typing.TextIO): writes all output to this file.
     """
     # Your code goes here!
-    # It might be good to start by creating a new JackTokenizer and CompilationEngine:
-    # tokenizer = JackTokenizer(input_file)
-    # engine = CompilationEngine(tokenizer, output_file)
-    x=6
-    tokenizer=JackTokenizer(input_file)
-    pass
+    tokenizer = JackTokenizer(input_file)
+    engine = CompilationEngine(tokenizer, output_file)
+    # "KEYWORD", "SYMBOL", "IDENTIFIER", "INT_CONST", "STRING_CONST"
+    print("<tokens>")
+    while tokenizer.has_more_tokens():
+        # engine.compile_token()
+        type = tokenizer.token_type()
+        token = tokenizer.get_token()
+        if token =="<":
+            token="&lt;"
+        elif token ==">":
+            token="&gt;"
+        elif token =="&":
+            token="&amp;;"
+        if type == "STRING_CONST":
+            token=token[1:-1]
+
+        print(f"<{T_types_dic[type]}> {token} </{T_types_dic[type]}>")
+
+        tokenizer.advance()
+    print("</tokens>")
 
 
 if "__main__" == __name__:

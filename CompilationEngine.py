@@ -12,6 +12,13 @@ class CompilationEngine:
     """Gets input from a JackTokenizer and emits its parsed structure into an
     output stream.
     """
+    # "KEYWORD", "SYMBOL", "IDENTIFIER", "INT_CONST", "STRING_CONST"
+
+    def compile_token(self):
+        self.token, self.token_type = self.JackTokenizer.get_token(), \
+                                      self.JackTokenizer.token_type()
+        # if self.token==
+
 
     def __init__(self, input_stream: "JackTokenizer", output_stream) -> None:
         """
@@ -20,15 +27,13 @@ class CompilationEngine:
         :param input_stream: The input stream.
         :param output_stream: The output stream.
         """
-        # Your code goes here!
-        # Note that you can write to output_stream like so:
-        # output_stream.write("Hello world! \n")
+        self.token, self.token_type = "", ""
+        self.JackTokenizer = input_stream
         pass
 
     def compile_class(self) -> None:
         """Compiles a complete class."""
         # Your code goes here!
-        pass
 
     def compile_class_var_dec(self) -> None:
         """Compiles a static declaration or a field declaration."""
@@ -45,7 +50,7 @@ class CompilationEngine:
         pass
 
     def compile_parameter_list(self) -> None:
-        """Compiles a (possibly empty) parameter list, not including the 
+        """Compiles a (possibly empty) parameter list, not including the
         enclosing "()".
         """
         # Your code goes here!
@@ -57,7 +62,7 @@ class CompilationEngine:
         pass
 
     def compile_statements(self) -> None:
-        """Compiles a sequence of statements, not including the enclosing 
+        """Compiles a sequence of statements, not including the enclosing
         "{}".
         """
         # Your code goes here!
@@ -94,7 +99,7 @@ class CompilationEngine:
         pass
 
     def compile_term(self) -> None:
-        """Compiles a term. 
+        """Compiles a term.
         This routine is faced with a slight difficulty when
         trying to decide between some of the alternative parsing rules.
         Specifically, if the current token is an identifier, the routing must
