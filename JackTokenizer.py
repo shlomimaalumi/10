@@ -18,6 +18,7 @@ symbol_list = ['{', '}', '(', ')', '[', ']', '.', ',', ';', '+',
                '-', '*', '/', '&', ',', '<', '>', '=', '~', '^', '#']
 
 
+# region helper function
 def check_if_var_name(string: str) -> bool:
     if string[0] == '"':
         string = string[1:]
@@ -41,6 +42,9 @@ def is_constant_number(str) -> bool:
             return False
     else:
         return False
+
+
+# endregion
 
 
 class JackTokenizer:
@@ -69,7 +73,8 @@ class JackTokenizer:
     The Jack language includes five types of terminal elements (tokens).
 
     - keyword: 'class' | 'constructor' | 'function' | 'method' | 'field' | 
-               'static' | 'var' | 'int' | 'char' | 'boolean' | 'void' | 'true' |
+               'static' | 'var' | 'int' | 'char' | 'boolean' | 'void' | 'true'
+                |
                'false' | 'null' | 'this' | 'let' | 'do' | 'if' | 'else' | 
                'while' | 'return'
     - symbol: '{' | '}' | '(' | ')' | '[' | ']' | '.' | ',' | ';' | '+' | 
@@ -127,103 +132,6 @@ class JackTokenizer:
     Note that ^, # correspond to shiftleft and shiftright, respectively.
     """
 
-    def get_by_lines(self, input_stream: typing.TextIO):
-        self.file = []
-        pattern, open, close = r'/\*\*(.*?)\*\/', "/**", "*/"
-        is_comment = False
-        input_lines = input_stream.read().splitlines()
-        # Use the re.sub() method to search for the pattern and replace it with an empty string
-        for line in input_lines:
-            if '"' not in line:
-                line = re.sub(pattern, '"', line)
-            else:
-                while ('/**' in line):
-                ind_comment = line.rfind("/**")
-
-            line = line.replace('\t', ' ')
-            line = line.replace('\\t', ' ')
-            line = line.strip()
-            if len(line) != 0 and line[:3] == open:
-                is_comment = True
-                continue
-            if len(line) != 0 and is_comment and line[0] == '*':
-                if close in line:
-                    is_comment = False
-                continue
-            if close in line:
-                is_comment = False
-            if line and '/' == line[0] and line[1] == '/':
-                continue
-            else:
-                line_list = line.split(" ")
-                if '//' in line_list:
-                    comment_idx = line_list.index('//')
-                    list1 = list(line_list[0:comment_idx])
-                    str = " ".join(list1).strip()
-                    if str:
-                        self.file.append(str)
-                else:
-                    if line:
-                        self.file.append(line)
-    def token_word(self, word: str):
-        if len(word) == 0:
-            return
-        elif word in keyword_list:
-            self.tokens.append(word)
-        elif is_constant_number(word):
-            self.tokens.append(word)
-            # self.tokens_type_list.append("INT_CONST")
-        elif check_if_var_name(word):
-            self.tokens.append(word)
-            # if word[0] != '"':
-            #     self.tokens_type_list.append("IDENTIFIER")
-            # else:
-            #     self.tokens_type_list.append("STRING_CONST")
-        elif word[0] in symbol_list:
-            self.tokens.append(word[0])
-            # self.tokens_type_list.append("SYMBOL")
-            self.token_word(word[1:])
-        else:
-            for ind, c in enumerate(word):
-                if c in symbol_list:
-                    temp = word[:ind]
-                    self.tokens.append(word[:ind])
-                    # self.tokens_type_list.append("SYMBOL")
-                    self.token_word(word[ind:])
-                    return
-
-    def get_by_tokens(self):
-        self.tokens = []
-        for line in self.file:
-            line = line.split()
-
-            for word in line:
-                self.token_word(word)
-
-    def connect_strings(self):
-        flag = False
-        new_list=[]
-        txt=""
-        for symbol in self.tokens:
-            if symbol[0]=='"' and symbol[-1]!='"':
-                flag = True
-                txt+=symbol
-            elif symbol[-1] =='"' and symbol[-1] =='"':
-                flag=False
-                txt+=" "
-                txt+=symbol
-                new_list.append(txt)
-                txt = ""
-            elif flag:
-                txt += " "
-                txt+=symbol
-            else:
-                new_list.append(symbol)
-        self.tokens = new_list
-
-
-
-
     def __init__(self, input_stream: typing.TextIO) -> None:
         """Opens the input stream and gets ready to tokenize it.
 
@@ -231,12 +139,12 @@ class JackTokenizer:
             input_stream (typing.TextIO): input stream.
         """
         self.pos = 0
+        self.file = []
+        self.tokens = []
         self.get_by_lines(input_stream)
         # self.tokens_type_list = []
         self.get_by_tokens()
         self.connect_strings()
-        for word1 in self.tokens:
-            print(word1)
 
     def has_more_tokens(self) -> bool:
         """Do we have more tokens in the input?
@@ -244,14 +152,13 @@ class JackTokenizer:
         Returns:
             bool: True if there are more tokens, False otherwise.
         """
-        return self.pos < len(self.file)
+        return self.pos < len(self.tokens)
 
     def advance(self) -> None:
         """Gets the next token from the input and makes it the current token. 
-        This method should be called if has_more_tokens() is true. 
+        This method should be called if it has_more_tokens() is true.
         Initially there is no current token.
         """
-        # Your code goes here!
         if self.has_more_tokens():
             self.pos += 1
 
@@ -297,8 +204,10 @@ class JackTokenizer:
                   starting with a digit. You can assume keywords cannot be
                   identifiers, so 'self' cannot be an identifier, etc'.
         """
-        # Your code goes here!
-        pass
+        if self.token_type() == "IDENTIFIER":
+            return str(self.get_token())
+        raise ValueError(
+            f"identifier function wrong, the function get {self.get_token()}")
 
     def int_val(self) -> int:
         """
@@ -309,7 +218,10 @@ class JackTokenizer:
             integerConstant: A decimal number in the range 0-32767.
         """
         # Your code goes here!
-        pass
+        if self.token_type() == "INT_CONST":
+            return int(self.get_token())
+        raise ValueError(
+            f"int_val function wrong, the function get {self.get_token()}")
 
     def string_val(self) -> str:
         """
@@ -320,5 +232,110 @@ class JackTokenizer:
             StringConstant: '"' A sequence of Unicode characters not including 
                       double quote or newline '"'
         """
-        # Your code goes here!
-        pass
+        if self.token_type() == "STRING_CONST":
+            return self.get_token()[1:-1]
+        raise ValueError(
+            f"string_val function wrong, the input was: {self.get_token()}")
+
+    # region class helper functions
+    def get_by_lines(self, input_stream: typing.TextIO):
+        pattern, open, close = r'/\*\*(.*?)\*\/', "/**", "*/"
+        is_comment = False
+        input_lines = input_stream.read().splitlines()
+        # Use the re.sub() method to search for the pattern and replace it with
+        # an empty string
+        for line in input_lines:
+            if '"' not in line:
+                line = re.sub(pattern, '"', line)
+            else:
+                while line.rfind('"') < line.rfind("/**") and line.rfind(
+                        '/**') < line.rfind("*/"):
+                    line = line[:line.rfind("/**")]
+
+            line = line.replace('\t', ' ')
+            line = line.replace('\\t', ' ')
+            line = line.strip()
+            if len(line) != 0 and line[:3] == open:
+                is_comment = True
+                continue
+            if len(line) != 0 and is_comment and line[0] == '*':
+                if close in line:
+                    is_comment = False
+                continue
+            if close in line:
+                is_comment = False
+            if line and '/' == line[0] and line[1] == '/':
+                continue
+            else:
+                line_list = line.split(" ")
+                if '//' in line_list:
+                    comment_idx = line_list.index('//')
+                    list1 = list(line_list[0:comment_idx])
+                    str = " ".join(list1).strip()
+                    if str:
+                        self.file.append(str)
+                else:
+                    if line:
+                        self.file.append(line)
+
+    def token_word(self, word: str):
+        if len(word) == 0:
+            return
+        elif word in keyword_list:
+            self.tokens.append(word)
+        elif is_constant_number(word):
+            self.tokens.append(word)
+            # self.tokens_type_list.append("INT_CONST")
+        elif check_if_var_name(word):
+            self.tokens.append(word)
+            # if word[0] != '"':
+            #     self.tokens_type_list.append("IDENTIFIER")
+            # else:
+            #     self.tokens_type_list.append("STRING_CONST")
+        elif word[0] in symbol_list:
+            self.tokens.append(word[0])
+            # self.tokens_type_list.append("SYMBOL")
+            self.token_word(word[1:])
+        else:
+            for ind, c in enumerate(word):
+                if c in symbol_list:
+                    temp = word[:ind]
+                    self.tokens.append(word[:ind])
+                    # self.tokens_type_list.append("SYMBOL")
+                    self.token_word(word[ind:])
+                    return
+
+    def get_by_tokens(self):
+        for line in self.file:
+            line = line.split()
+
+            for word in line:
+                self.token_word(word)
+
+    def connect_strings(self):
+        flag = False
+        new_list = []
+        txt = ""
+        for symbol in self.tokens:
+            if symbol[0] == '"' and symbol[-1] != '"':
+                flag = True
+                txt += symbol
+            elif symbol[-1] == '"' and symbol[-1] == '"':
+                flag = False
+                txt += " "
+                txt += symbol
+                new_list.append(txt)
+                txt = ""
+            elif flag:
+                txt += " "
+                txt += symbol
+            else:
+                new_list.append(symbol)
+        self.tokens = new_list
+
+    def get_token(self):
+        if not self.has_more_tokens():
+            raise ValueError(
+                'has more command function wrong, token out of range"')
+
+    # endregion
