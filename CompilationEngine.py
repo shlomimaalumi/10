@@ -5,6 +5,7 @@ was written by Aviv Yaish. It is an extension to the specifications given
 as allowed by the Creative Common Attribution-NonCommercial-ShareAlike 3.0
 Unported [License](https://creativecommons.org/licenses/by-nc-sa/3.0/).
 """
+import os
 import typing
 
 
@@ -15,9 +16,11 @@ class CompilationEngine:
     # "KEYWORD", "SYMBOL", "IDENTIFIER", "INT_CONST", "STRING_CONST"
 
     def compile_token(self):
-        self.token, self.token_type = self.JackTokenizer.get_token(), \
-                                      self.JackTokenizer.token_type()
-        # if self.token==
+        token, token_type = self.JackTokenizer.get_token(), \
+                            self.JackTokenizer.token_type()
+        self.os.write(f"<{token}>")
+
+        self.os.write(f"</{token}>")
 
 
     def __init__(self, input_stream: "JackTokenizer", output_stream) -> None:
@@ -29,6 +32,8 @@ class CompilationEngine:
         """
         self.token, self.token_type = "", ""
         self.JackTokenizer = input_stream
+        self.os = output_stream
+        self.spaces = ""
         pass
 
     def compile_class(self) -> None:
@@ -36,9 +41,26 @@ class CompilationEngine:
         # Your code goes here!
 
     def compile_class_var_dec(self) -> None:
+
         """Compiles a static declaration or a field declaration."""
         # Your code goes here!
-        pass
+
+        words_list, types_list = [], []
+        self.print_to_file(f"<classVarDec>\n")
+        self.add_spaces()
+        self.print_and_advance()
+        self.print_and_advance()
+
+        while self.JackTokenizer.get_token() != ";" and self.JackTokenizer.has_more_tokens():
+            self.add_type_and_token(words_list, types_list)
+            self.JackTokenizer.advance()
+
+        for idx, word in enumerate(words_list):
+            self.print_to_file(
+                f"<{T_types_dic[types_list[idx]]}> {word} </{T_types_dic[types_list[idx]]}>\n")
+
+        self.remove_spaces()
+        self.print_to_file(f"</classVarDec>\n")
 
     def compile_subroutine(self) -> None:
         """
@@ -57,9 +79,23 @@ class CompilationEngine:
         pass
 
     def compile_var_dec(self) -> None:
-        """Compiles a var declaration."""
+        words_list, types_list = [], []
+        self.print_to_file(f"<varDec>\n")
+        self.add_spaces()
+        self.print_and_advance()
+        self.print_and_advance()
+
+        while self.JackTokenizer.get_token() != ";" and self.JackTokenizer.has_more_tokens():
+            self.add_type_and_token(words_list, types_list)
+            self.JackTokenizer.advance()
+
+        for idx, word in enumerate(words_list):
+            self.print_to_file(
+                f"<{T_types_dic[types_list[idx]]}> {word} </{T_types_dic[types_list[idx]]}>\n")
+
+        self.remove_spaces()
+        self.print_to_file(f"</varDec>\n")
         # Your code goes here!
-        pass
 
     def compile_statements(self) -> None:
         """Compiles a sequence of statements, not including the enclosing
@@ -115,3 +151,25 @@ class CompilationEngine:
         """Compiles a (possibly empty) comma-separated list of expressions."""
         # Your code goes here!
         pass
+
+#**************************** helper functions ***************************
+
+    def add_type_and_token(self, tokens_list, types_list):
+        tokens_list.append(self.JackTokenizer.get_token())
+        types_list.append(self.JackTokenizer.token_type())
+
+    def add_spaces(self):
+        self.spaces += "  "
+
+    def remove_spaces(self):
+        self.spaces = self.spaces[:-2]
+
+    def print_to_file(self, txt: str):
+        self.os.write(self.spaces + txt)
+
+    def print_and_advance(self):
+        token = self.JackTokenizer.get_token()  # add 'field'
+        token_type = self.JackTokenizer.token_type()
+        self.JackTokenizer.advance()
+        self.os.write(
+            self.spaces + f"<{T_types_dic[token_type]}> {token} </{T_types_dic[token_type]}>\n")

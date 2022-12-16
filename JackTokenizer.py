@@ -318,17 +318,11 @@ class JackTokenizer:
         elif is_constant_number(word):
             self.tokens.append(word)
             return
-            # self.tokens_type_list.append("INT_CONST")
         elif check_if_var_name(word):
             self.tokens.append(word)
             return
-            # if word[0] != '"':
-            #     self.tokens_type_list.append("IDENTIFIER")
-            # else:
-            #     self.tokens_type_list.append("STRING_CONST")
         elif word[0] in symbol_list:
             self.tokens.append(word[0])
-            # self.tokens_type_list.append("SYMBOL")
             self.token_word(word[1:])
             return
         else:
@@ -336,50 +330,9 @@ class JackTokenizer:
                 if c in symbol_list:
                     temp = word[:ind]
                     self.tokens.append(word[:ind])
-                    # self.tokens_type_list.append("SYMBOL")
                     self.token_word(word[ind:])
                     return
         last_one=word
-        # global temp2
-        # if len(word) == 0:
-        #     return
-        # if word=="NUMBERS?":
-        #     x=8
-        # if word=='"HOW':
-        #     x=7
-        # elif word in keyword_list:
-        #     self.tokens.append(word)
-        #     return
-        # elif is_constant_number(word):
-        #     self.tokens.append(word)
-        #     return
-        #     # self.tokens_type_list.append("INT_CONST")
-        # elif check_if_var_name(word):
-        #     self.tokens.append(word)
-        #     return
-        #     # if word[0] != '"':
-        #     #     self.tokens_type_list.append("IDENTIFIER")
-        #     # else:
-        #     #     self.tokens_type_list.append("STRING_CONST")
-        # elif word[0] in symbol_list:
-        #     self.tokens.append(word[0])
-        #     # self.tokens_type_list.append("SYMBOL")
-        #     self.token_word(word[1:])
-        #     return
-        # else:
-        #     for ind, c in enumerate(word):
-        #         if c in symbol_list:
-        #             temp = word[:ind]
-        #             self.tokens.append(word[:ind])
-        #             self.token_word(word[ind:])
-        #             return
-        # if '"' in word and temp2:
-        #     self.tokens.append(word[:word.index('"')])
-        #     # self.tokens_type_list.append("SYMBOL")
-        #     temp2= False
-        #     self.token_word(word[word.index('"'):])
-        # if word[0]=='"':
-        #     temp2=True
 
     def get_by_tokens(self):
         global temp3

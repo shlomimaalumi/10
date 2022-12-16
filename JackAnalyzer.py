@@ -28,24 +28,26 @@ def analyze_file(
     tokenizer = JackTokenizer(input_file)
     engine = CompilationEngine(tokenizer, output_file)
     # "KEYWORD", "SYMBOL", "IDENTIFIER", "INT_CONST", "STRING_CONST"
-    print("<tokens>")
-    while tokenizer.has_more_tokens():
-        # engine.compile_token()
-        type = tokenizer.token_type()
-        token = tokenizer.get_token()
-        if token =="<":
-            token="&lt;"
-        elif token ==">":
-            token="&gt;"
-        elif token =="&":
-            token="&amp;;"
-        if type == "STRING_CONST":
-            token=token[1:-1]
-
-        print(f"<{T_types_dic[type]}> {token} </{T_types_dic[type]}>")
-
-        tokenizer.advance()
-    print("</tokens>")
+    # print("<tokens>")
+    # while tokenizer.has_more_tokens():
+    #     # engine.compile_token()
+    #     type = tokenizer.token_type()
+    #     token = tokenizer.get_token()
+    #     if token =="<":
+    #         token="&lt;"
+    #     elif token ==">":
+    #         token="&gt;"
+    #     elif token =="&":
+    #         token="&amp;;"
+    #     if type == "STRING_CONST":
+    #         token=token[1:-1]
+        # print(f"<{T_types_dic[type]}> {token} </{T_types_dic[type]}>")
+    # 
+    #     tokenizer.advance()
+    # print("</tokens>")
+    engine.compile_var_dec()
+    engine.JackTokenizer.advance()
+    engine.compile_var_dec()
 
 
 if "__main__" == __name__:
