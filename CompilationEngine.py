@@ -8,13 +8,44 @@ Unported [License](https://creativecommons.org/licenses/by-nc-sa/3.0/).
 import os
 import typing
 
+T_types_dic = {"INT_CONST": "integerConstant", "SYMBOL": "symbol",
+               "IDENTIFIER": "identifier", "KEYWORD": "keyword",
+               "STRING_CONST": "stringConstant"}
+
+keyWords = \
+    {'boolean': 'BOOLEAN', 'char': 'CHAR', 'class': 'CLASS',
+     'constructor': 'CONSTRUCTOR', 'do': 'DO', 'else': 'ELSE',
+     'false': 'FALSE', 'field': 'FIELD', 'function': 'FUNCTION', 'if': 'IF',
+     'int': 'INT', 'let': 'LET', 'method': 'METHOD', 'null': 'NULL',
+     'return': 'RETURN', 'static': 'STATIC', 'this': 'THIS', 'true': 'TRUE',
+     'var': 'VAR', 'void': 'VOID', 'while': 'WHILE'}
+
+symbols = \
+    {'&', '(', ')', '*', '+', ',', '-', '.', '/', ';', '<', '=', '>', '[', ']',
+     '{', '|', '}', '~'}
+
+keyword_switch = \
+    {'BOOLEAN': 'boolean', 'CHAR': 'char', 'CLASS': 'class',
+     'CONSTRUCTOR': 'constructor', 'DO': 'do', 'ELSE': 'else',
+     'FALSE': 'false', 'FIELD': 'field', 'FUNCTION': 'function', 'IF': 'if',
+     'INT': 'int', 'LET': 'let', 'METHOD': 'method', 'NULL': 'null',
+     'RETURN': 'return', 'STATIC': 'static', 'THIS': 'this', 'TRUE': 'true',
+     'VAR': 'var', 'VOID': 'void', 'WHILE': 'while'}
+
+symbol_switch = \
+    {'&': '&amp;', '(': '(', ')': ')', '*': '*', '+': '+', ',': ',', '-': '-',
+     '.': '.', '/': '/', '\"': '', ';': ';', '<': '&lt;', '=': '=',
+     '>': '&gt;', '[': '[', ']': ']', '{': '{', '|': '|', '}': '}', '~': '~'}
+
+op_list = ['+', '-', '*', '/', '&', '|', '<', '>', '=']
+unary_op_list = ['-', '~']
+keyword_constant = ["TRUE", "FALSE", "NULL", "THIS"]
 
 
 class CompilationEngine:
     """Gets input from a JackTokenizer and emits its parsed structure into an
     output stream.
     """
-    # "KEYWORD", "SYMBOL", "IDENTIFIER", "INT_CONST", "STRING_CONST"
 
     def compile_token(self):
         token, token_type = self.get_token(), \

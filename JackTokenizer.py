@@ -14,6 +14,16 @@ keyword_list = ['class', 'constructor', 'function', 'method', 'field',
                 'static', 'var', 'int', 'char', 'boolean', 'void', 'true',
                 'false', 'null', 'this', 'let', 'do', 'if', 'else',
                 'while', 'return']
+
+keyWords = \
+    {'boolean': 'BOOLEAN', 'char': 'CHAR', 'class': 'CLASS',
+     'constructor': 'CONSTRUCTOR', 'do': 'DO', 'else': 'ELSE',
+     'false': 'FALSE', 'field': 'FIELD', 'function': 'FUNCTION', 'if': 'IF',
+     'int': 'INT', 'let': 'LET', 'method': 'METHOD', 'null': 'NULL',
+     'return': 'RETURN', 'static': 'STATIC', 'this': 'THIS', 'true': 'TRUE',
+     'var': 'VAR', 'void': 'VOID', 'while': 'WHILE'}
+
+
 open_symbols = ['{', '(', '[', '<']
 close_symbols = ['}', ')', ']', '>']
 symbol_list = ['{', '}', '(', ')', '[', ']', '.', ',', ';', '+',
@@ -196,8 +206,10 @@ class JackTokenizer:
             "BOOLEAN", "CHAR", "VOID", "VAR", "STATIC", "FIELD", "LET", "DO", 
             "IF", "ELSE", "WHILE", "RETURN", "TRUE", "FALSE", "NULL", "THIS"
         """
-        # Your code goes here!
-        pass
+        if self.token_type() == "KEYWORD":
+            return keyWords[self.get_token()]
+        raise ValueError(
+            f"keyword function wrong, the function get: {self.get_token()}")
 
     def symbol(self) -> str:
         """
