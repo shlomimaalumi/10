@@ -11,8 +11,9 @@ import typing
 from CompilationEngine import CompilationEngine
 from JackTokenizer import JackTokenizer
 
+
 T_types_dic = {"INT_CONST": "integerConstant", "SYMBOL": "symbol",
-               "IDENTIFIER": "identifier","KEYWORD": "keyword",
+               "IDENTIFIER": "identifier", "KEYWORD": "keyword",
                "STRING_CONST": "stringConstant"}
 
 
@@ -41,13 +42,13 @@ def analyze_file(
     #         token="&amp;;"
     #     if type == "STRING_CONST":
     #         token=token[1:-1]
-        # print(f"<{T_types_dic[type]}> {token} </{T_types_dic[type]}>")
+    # print(f"<{T_types_dic[type]}> {token} </{T_types_dic[type]}>")
     # 
     #     tokenizer.advance()
     # print("</tokens>")
-    engine.compile_var_dec()
+    engine.compile_do()
     engine.JackTokenizer.advance()
-    engine.compile_var_dec()
+    engine.compile_do()
 
 
 if "__main__" == __name__:
