@@ -60,6 +60,8 @@ def is_constant_number(str) -> bool:
 # endregion
 
 
+
+
 class JackTokenizer:
     """Removes all comments from the input stream and breaks it
     into Jack language tokens, as specified by the Jack grammar.
@@ -174,6 +176,9 @@ class JackTokenizer:
         """
         if self.has_more_tokens():
             self.pos += 1
+
+    def back(self):
+        self.pos -= 1
 
     def token_type(self) -> str:
         """
@@ -387,5 +392,6 @@ class JackTokenizer:
             raise ValueError(
                 'has more command function wrong, token out of range"')
         return self.tokens[self.pos]
+    # TODO return empty srting instead of raise
 
     # endregion
