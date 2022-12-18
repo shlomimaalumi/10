@@ -212,8 +212,22 @@ class CompilationEngine:
 
     def compile_if(self) -> None:
         """Compiles a if statement, possibly with a trailing else clause."""
-        # Your code goes here!
-        pass
+        # if (expression) {statments} (else {statements})?
+        self.open_main_xml("ifStatement")
+        self.print_keyword_and_advance()  # if
+        self.print_symbol_and_advance()  # (
+        self.compile_expression_and_advance()  # expressions
+        self.print_symbol_and_advance()  # )
+        self.print_symbol_and_advance()  # {
+        self.compile_statements_and_advance()  # statements
+        self.print_symbol_and_advance()  # }
+        if self.get_token() == "else":
+            self.print_keyword_and_advance()  # else
+            self.print_symbol_and_advance()  # {
+            self.compile_statements_and_advance()  # statements
+            self.print_symbol_and_advance()  # }
+        self.back()
+        self.close_main_xml("ifStatement")
 
     def compile_expression(self) -> None:
         """Compiles an expression."""
