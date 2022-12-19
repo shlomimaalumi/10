@@ -31,7 +31,7 @@ keyword_switch = \
      'FALSE': 'false', 'FIELD': 'field', 'FUNCTION': 'function', 'IF': 'if',
      'INT': 'int', 'LET': 'let', 'METHOD': 'method', 'NULL': 'null',
      'RETURN': 'return', 'STATIC': 'static', 'THIS': 'this', 'TRUE': 'true',
-     'VAR': 'var', 'VOID': 'void', 'WHILE': 'while',"String": "String"}
+     'VAR': 'var', 'VOID': 'void', 'WHILE': 'while', "String": "String"}
 
 symbol_switch = \
     {'&': '&amp;', '(': '(', ')': ')', '*': '*', '+': '+', ',': ',', '-': '-',
