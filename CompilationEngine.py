@@ -168,7 +168,7 @@ class CompilationEngine:
         self.print_identifier_and_advance()  # var_name
         while self.get_token() == ",":
             self.print_symbol_and_advance()  # ,
-            self.print_keyword_and_advance()  # var_name
+            self.print_identifier_and_advance()  # var_name
         self.print_symbol()
         self.close_main_xml("varDec")
 
@@ -231,7 +231,7 @@ class CompilationEngine:
         self.print_and_advance()
         if self.get_token() != ';':
             self.compile_expression()
-            self.advance()
+            # self.advance()
         self.print_symbol()
         self.close_main_xml("returnStatement")
 
