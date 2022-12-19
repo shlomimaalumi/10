@@ -84,7 +84,7 @@ class CompilationEngine:
         self.print_identifier_and_advance()  # class_name
         self.print_symbol_and_advance()  # {
         while self.get_token() in ["field", "static"]:
-            self.compile_var_dec()
+            self.compile_class_var_dec()
             self.advance()
         while self.get_token() in ["method", "function", "constructor"]:
             self.compile_subroutine()
@@ -103,6 +103,7 @@ class CompilationEngine:
             self.print_keyword_and_advance()  # exist type
         else:
             self.print_identifier_and_advance()  # new type
+
         self.print_identifier_and_advance()  # var_name
         while self.get_token() == ',':
             self.print_symbol_and_advance()  # ,
@@ -147,6 +148,8 @@ class CompilationEngine:
         # Your code goes here!
         self.open_main_xml("parameterList")
         if self.get_token() != ')':
+            if self.get_token() in keyWords.keys():
+                self.print_keyword_and_advance()
             # if self.get_token() in keyWords.keys():
             #     self.print_keyword_and_advance()  # exist type
             # else:
@@ -154,12 +157,14 @@ class CompilationEngine:
             self.print_identifier_and_advance()  # var_name
             while self.get_token() == ',':
                 self.print_symbol_and_advance()
+                if self.get_token() in keyWords.keys():
+                    self.print_keyword_and_advance()
                 self.print_identifier_and_advance()
         self.close_main_xml("parameterList")
 
     def compile_var_dec(self) -> None:
         # field|static type car_name (,var_name)* ;
-        self.open_main_xml("VarDec")
+        self.open_main_xml("varDec")
         self.print_keyword_and_advance()  # field|static
         if self.get_token() in keyWords.keys():
             self.print_keyword_and_advance()  # exist type

@@ -33,14 +33,16 @@ temp2 = False
 temp3=False
 # region helper function
 def check_if_var_name(string: str) -> bool:
+
     if string[0] == '"':
         string = string[1:]
     if string[-1] == '"':
         string = string[:-1]
 
-    if string[0].isalpha() and string.isalnum():
-        return True
-    return False
+    # if string[0].isidentifier() and string.isalnum():
+    #     return True
+    # return False
+    return string.isidentifier()
 
 
 def is_constant_number(str) -> bool:
