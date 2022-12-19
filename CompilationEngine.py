@@ -40,7 +40,7 @@ symbol_switch = \
 
 op_list = ['+', '-', '*', '/', '&', '|', '<', '>', '=']
 unary_op_list = ['-', '~']
-keyword_constant = ["TRUE", "FALSE", "NULL", "THIS"]
+keyword_constant = ["true", "false", "null", "this"]
 
 brackets_dic = {'{': '}', '[': ']', '(': ')'}
 
@@ -121,7 +121,10 @@ class CompilationEngine:
         # subroutine body: {var_dce* statments}
         self.open_main_xml("subroutineDec")
         self.print_keyword_and_advance()  # cons|method|function
-        self.print_keyword_and_advance()  # void|type
+        if self.get_token() in keyWords.keys():
+            self.print_keyword_and_advance()  # exist type
+        else:
+            self.print_identifier_and_advance()  # new type  # void|type
         self.print_identifier_and_advance()  # subroutine_name
         self.print_symbol_and_advance()  # (
         self.compile_parameter_list()  # parameted_list
@@ -144,10 +147,10 @@ class CompilationEngine:
         # Your code goes here!
         self.open_main_xml("parameterList")
         if self.get_token() != ')':
-            if self.get_token() in keyWords.keys():
-                self.print_keyword_and_advance()  # exist type
-            else:
-                self.print_identifier_and_advance()  # new type
+            # if self.get_token() in keyWords.keys():
+            #     self.print_keyword_and_advance()  # exist type
+            # else:
+            #     self.print_identifier_and_advance()  # new type
             self.print_identifier_and_advance()  # var_name
             while self.get_token() == ',':
                 self.print_symbol_and_advance()
@@ -173,19 +176,25 @@ class CompilationEngine:
         """Compiles a sequence of statements, not including the enclosing
         "{}".
         """
+
         self.open_main_xml("statements")
-        while self.get_token() in self.statments_type.keys():
-            self.statments_type[self.get_token()]()
-            self.advance()
+        if self.get_token() in self.statments_type.keys():
+            while self.get_token() in self.statments_type.keys():
+                self.statments_type[self.get_token()]()
+                self.advance()
+        else:
+            self.back()
+
         self.close_main_xml("statements")
 
     def compile_do(self) -> None:
         """Compiles a do statement."""
+        # do subroutine call
         self.open_main_xml("doStatement")
-        self.print_keyword_and_advance()
+        self.print_keyword_and_advance() #do
         self.subroutine_call()
+        self.print_symbol() # ;
         #self.advance()
-        self.print_symbol()
         self.close_main_xml("doStatement")
 
     def compile_let(self) -> None:
@@ -299,7 +308,7 @@ class CompilationEngine:
         self.open_main_xml("expressionList")
         if self.get_token() != ')':  # possibly empty
             self.compile_expression()
-            while self.get_next_token() != ",":
+            while self.get_next_token() == ",":
                 self.advance()
                 self.print_symbol_and_advance()
                 self.compile_expression()
@@ -312,15 +321,13 @@ class CompilationEngine:
         if self.get_token() == '.':  # var|class . subroutine name
             self.print_symbol_and_advance()
             self.print_identifier_and_advance()
-            self.print_symbol_and_advance()
-            self.compile_expression_list()
-            self.advance()
-            self.print_symbol()
+            self.print_symbol_and_advance() #(
+            self.compile_expression_list() #expression
+            self.print_symbol_and_advance() #)
         elif self.get_token() == '(':  # subroutine_name(expression)
             self.print_symbol_and_advance()
             self.compile_expression_list()
             self.advance()
-            self.print_symbol()
 
     def term_identifier_product(self):
         self.advance()
@@ -401,7 +408,7 @@ class CompilationEngine:
     def print_keyword_constant(self):
         self.open_xml("keyword")
         temp1=self.JackTokenizer.keyword()
-        self.os.write(f" {keyword_switch[self.JackTokenizer.keyword()]}")
+        self.os.write(f" {keyword_switch[self.JackTokenizer.keyword()]} ")
         self.close_xml("keyword")
 
     def print_keyword_and_advance(self):
@@ -426,7 +433,7 @@ class CompilationEngine:
     def print_symbol(self):
         self.open_xml("symbol")
         temp1=self.JackTokenizer.get_token()
-        self.os.write(f" {symbol_switch[self.JackTokenizer.symbol()]}")
+        self.os.write(f" {symbol_switch[self.JackTokenizer.symbol()]} ")
         self.close_xml("symbol")
 
     def print_symbol_and_advance(self):
@@ -456,3 +463,9 @@ class CompilationEngine:
     def compile_statements_and_advance(self):
         self.compile_statements()
         self.advance()
+
+    def print_var_type(self):
+        if self.get_token() in keyWords.keys():
+            self.print_keyword_and_advance()  # exist type
+        else:
+            self.print_identifier_and_advance()
