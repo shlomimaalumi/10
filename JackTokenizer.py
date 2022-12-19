@@ -13,7 +13,7 @@ last_one=''
 keyword_list = ['class', 'constructor', 'function', 'method', 'field',
                 'static', 'var', 'int', 'char', 'boolean', 'void', 'true',
                 'false', 'null', 'this', 'let', 'do', 'if', 'else',
-                'while', 'return']
+                'while', 'return', 'String']
 
 keyWords = \
     {'boolean': 'BOOLEAN', 'char': 'CHAR', 'class': 'CLASS',
@@ -21,13 +21,13 @@ keyWords = \
      'false': 'FALSE', 'field': 'FIELD', 'function': 'FUNCTION', 'if': 'IF',
      'int': 'INT', 'let': 'LET', 'method': 'METHOD', 'null': 'NULL',
      'return': 'RETURN', 'static': 'STATIC', 'this': 'THIS', 'true': 'TRUE',
-     'var': 'VAR', 'void': 'VOID', 'while': 'WHILE'}
+     'var': 'VAR', 'void': 'VOID', 'while': 'WHILE', "String": "String"}
 
 
 open_symbols = ['{', '(', '[', '<']
 close_symbols = ['}', ')', ']', '>']
 symbol_list = ['{', '}', '(', ')', '[', ']', '.', ',', ';', '+',
-               '-', '*', '/', '&', ',', '<', '>', '=', '~', '^', '#']
+               '-', '*', '/', '&', ',', '<', '>', '=', '~', '^', '#', '|']
 
 temp2 = False
 temp3=False

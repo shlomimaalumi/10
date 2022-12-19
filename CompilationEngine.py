@@ -19,7 +19,7 @@ keyWords = {'boolean': 'BOOLEAN', 'char': 'CHAR', 'class': 'CLASS',
             'false': 'FALSE', 'field': 'FIELD', 'function': 'FUNCTION', 'if': 'IF',
             'int': 'INT', 'let': 'LET', 'method': 'METHOD', 'null': 'NULL',
             'return': 'RETURN', 'static': 'STATIC', 'this': 'THIS', 'true': 'TRUE',
-            'var': 'VAR', 'void': 'VOID', 'while': 'WHILE'}
+            'var': 'VAR', 'void': 'VOID', 'while': 'WHILE', "String": "String"}
 
 symbols = \
     {'&', '(', ')', '*', '+', ',', '-', '.', '/', ';', '<', '=', '>', '[', ']',
@@ -31,7 +31,7 @@ keyword_switch = \
      'FALSE': 'false', 'FIELD': 'field', 'FUNCTION': 'function', 'IF': 'if',
      'INT': 'int', 'LET': 'let', 'METHOD': 'method', 'NULL': 'null',
      'RETURN': 'return', 'STATIC': 'static', 'THIS': 'this', 'TRUE': 'true',
-     'VAR': 'var', 'VOID': 'void', 'WHILE': 'while'}
+     'VAR': 'var', 'VOID': 'void', 'WHILE': 'while',"String": "String"}
 
 symbol_switch = \
     {'&': '&amp;', '(': '(', ')': ')', '*': '*', '+': '+', ',': ',', '-': '-',
@@ -175,7 +175,7 @@ class CompilationEngine:
             self.print_symbol_and_advance()  # ,
             self.print_identifier_and_advance()  # var_name
         self.print_symbol()
-        self.close_main_xml("VarDec")
+        self.close_main_xml("varDec")
 
     def compile_statements(self) -> None:
         """Compiles a sequence of statements, not including the enclosing
@@ -346,7 +346,7 @@ class CompilationEngine:
         if self.get_token() == '[':  # var [expression]
             self.print_symbol_and_advance()  # [
             self.compile_expression() # expression
-            self.print_symbol_and_advance()  # ]
+            self.print_symbol()  # ]
         elif self.get_token() == '.':  # var|class . subroutine name
             self.print_symbol_and_advance() #.
             self.print_identifier_and_advance()  # sub_name
