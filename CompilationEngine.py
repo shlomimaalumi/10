@@ -148,17 +148,19 @@ class CompilationEngine:
         # Your code goes here!
         self.open_main_xml("parameterList")
         if self.get_token() != ')':
-            if self.get_token() in keyWords.keys():
+            if self.get_token() in keyWords.keys(): #exist type
                 self.print_keyword_and_advance()
-            # if self.get_token() in keyWords.keys():
-            #     self.print_keyword_and_advance()  # exist type
-            # else:
-            #     self.print_identifier_and_advance()  # new type
+            elif self.get_token().isidentifier(): #new type
+                self.print_identifier_and_advance()
             self.print_identifier_and_advance()  # var_name
             while self.get_token() == ',':
-                self.print_symbol_and_advance()
-                if self.get_token() in keyWords.keys():
-                    self.print_keyword_and_advance()
+                self.print_symbol_and_advance()  # ,
+                if self.get_next_token() not in [',', ')']:
+                    if self.get_token() in keyWords.keys():
+                        self.print_keyword_and_advance()
+                    else:
+                        self.print_identifier_and_advance()
+
                 self.print_identifier_and_advance()
         self.close_main_xml("parameterList")
 
@@ -345,24 +347,23 @@ class CompilationEngine:
         self.print_identifier_and_advance()
         if self.get_token() == '[':  # var [expression]
             self.print_symbol_and_advance()  # [
-            self.compile_expression() # expression
+            self.compile_expression()  # expression
             self.print_symbol()  # ]
         elif self.get_token() == '.':  # var|class . subroutine name
-            self.print_symbol_and_advance() #.
+            self.print_symbol_and_advance()  # .
             self.print_identifier_and_advance()  # sub_name
             self.print_symbol_and_advance()  # (
             self.compile_expression_list()
-            if self.get_token()!=')':
-                self.advance() #empty
-            self.print_symbol() # )
+            if self.get_token() != ')':
+                self.advance()  # empty
+            self.print_symbol()  # )
         elif self.get_token() == '(':  # subroutine_name(expression)
-            self.print_symbol_and_advance() # (
-            self.compile_expression_list_and_advance() #expression
-            self.print_symbol() # )
+            self.print_symbol_and_advance()  # (
+            self.compile_expression_list()  # expression
+            self.print_symbol()  # )
         else:  # var name
             self.back()
             pass
-
 
     def add_type_and_token(self, tokens_list, types_list):
         tokens_list.append(self.get_token())
@@ -485,6 +486,7 @@ class CompilationEngine:
     def print_last_symbol(self):
         self.back()
         self.print_symbol_and_advance()
+
     def compile_expression_list_and_advance(self):
         self.compile_expression_list()
         self.advance()

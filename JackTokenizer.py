@@ -277,20 +277,18 @@ class JackTokenizer:
 
     # region class helper functions
     def get_by_lines(self, input_stream: typing.TextIO):
-        pattern, open, close = r'/\*\*(.*?)\*\/', "/**", "*/"
+        pattern, open, close = r'/\*\*(.*?)\*\/', "/*", "*/"
         is_comment = False
         input_lines = input_stream.read().splitlines()
 
         for line in input_lines:
-            if line=='   /** Constructs a new Square Game. */':
-                x=7
             line = line.strip()
             if '"' not in line:
                 line = re.sub(pattern, '', line)
             else:
-                while line.rfind('"') < line.rfind("/**") and line.rfind(
-                        '/**') < line.rfind("*/"):
-                    line = line[:line.rfind("/**")]
+                while line.rfind('"') < line.rfind("/*") and line.rfind(
+                        '/*') < line.rfind("*/"):
+                    line = line[:line.rfind("/*")]
 
             line = line.replace('\t', ' ')
             line = line.replace('\\t', ' ')
