@@ -44,8 +44,6 @@ keyword_constant = ["TRUE", "FALSE", "NULL", "THIS"]
 
 brackets_dic = {'{': '}', '[': ']', '(': ')'}
 
-subroutine_dic = {"method", "fucntion", "class"}
-
 clasess_list = []
 
 
