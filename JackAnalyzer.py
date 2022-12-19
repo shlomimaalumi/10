@@ -46,9 +46,8 @@ def analyze_file(
     # 
     #     tokenizer.advance()
     # print("</tokens>")
-    engine.compile_do()
-    engine.JackTokenizer.advance()
-    engine.compile_do()
+    while tokenizer.has_more_tokens():
+        engine.compile_class()
 
 
 if "__main__" == __name__:

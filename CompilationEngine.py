@@ -78,26 +78,36 @@ class CompilationEngine:
 
     def compile_class(self) -> None:
         """Compiles a complete class."""
-        pass
+        # class class_name {class_var_dec* subroutine_dec*}
+        self.open_main_xml("class")
+        self.print_keyword_and_advance()  # class
+        self.print_identifier_and_advance()  # class_name
+        self.print_symbol_and_advance()  # {
+        while self.get_token() in ["field", "static"]:
+            self.compile_var_dec()
+            self.advance()
+        while self.get_token() in ["method", "function", "constructor"]:
+            self.compile_subroutine()
+            self.advance()
+        self.print_symbol_and_advance()  # }
+        self.close_main_xml("class")
 
     def compile_class_var_dec(self) -> None:
 
         """Compiles a static declaration or a field declaration."""
-        # Your code goes here!
-
-        words_list, types_list = [], []
+        # static|field type var_name (,var_name)* ;
         self.open_main_xml("classVarDec")
-        self.print_and_advance()
-        self.print_and_advance()
 
-        while self.get_token() != ";" and self.JackTokenizer.has_more_tokens():
-            self.add_type_and_token(words_list, types_list)
-            self.advance()
-
-        for idx, word in enumerate(words_list):
-            self.print_to_file(
-                f"<{T_types_dic[types_list[idx]]}> {word} </{T_types_dic[types_list[idx]]}>\n")
-
+        self.print_keyword_and_advance()  # static | field
+        if self.get_token() in keyWords.keys():
+            self.print_keyword_and_advance()  # exist type
+        else:
+            self.print_identifier_and_advance()  # new type
+        self.print_identifier_and_advance()  # var_name
+        while self.get_token() == ',':
+            self.print_symbol_and_advance()  # ,
+            self.print_identifier_and_advance()  # var_name
+        self.print_symbol()  # ;
         self.close_main_xml("classVarDec")
 
     def compile_subroutine(self) -> None:
@@ -107,21 +117,23 @@ class CompilationEngine:
         you will understand why this is necessary in project 11.
         """
         # cons|mthod|function void|type subroutine_name
-        # ( parameted_lisr ) subroutine_body
+        # ( parameted_list ) subroutine_body
+        # subroutine body: {var_dce* statments}
         self.open_main_xml("subroutineDec")
-        self.print_keyword_and_advance()  # cons|mthod|function
+        self.print_keyword_and_advance()  # cons|method|function
         self.print_keyword_and_advance()  # void|type
         self.print_identifier_and_advance()  # subroutine_name
-        self.print_symbol_and_advance()
-        self.compile_parameter_list()
-        self.print_symbol_and_advance()
+        self.print_symbol_and_advance()  # (
+        self.compile_parameter_list()  # parameted_list
+        self.print_symbol_and_advance()  # )
         self.open_main_xml("subroutineBody")
-
-
-
-
+        self.print_symbol_and_advance()  # {
+        while self.get_token() == "var":
+            self.compile_var_dec()
+            self.advance()
+        self.compile_statements()
+        self.print_symbol()  # }
         self.close_main_xml("subroutineBody")
-        
         self.close_main_xml("subroutineDec")
 
     def compile_parameter_list(self) -> None:
@@ -132,7 +144,10 @@ class CompilationEngine:
         # Your code goes here!
         self.open_main_xml("parameterList")
         if self.get_token() != ')':
-            self.print_keyword_and_advance()  # type
+            if self.get_token() in keyWords.keys():
+                self.print_keyword_and_advance()  # exist type
+            else:
+                self.print_identifier_and_advance()  # new type
             self.print_identifier_and_advance()  # var_name
             while self.get_token() == ',':
                 self.print_symbol_and_advance()
@@ -143,8 +158,11 @@ class CompilationEngine:
         # field|static type car_name (,var_name)* ;
         self.open_main_xml("varDec")
         self.print_keyword_and_advance()  # field|static
-        self.print_keyword_and_advance()  # type
-        self.print_keyword_and_advance()  # var_name
+        if self.get_token() in keyWords.keys():
+            self.print_keyword_and_advance()  # exist type
+        else:
+            self.print_identifier_and_advance()  # new type
+        self.print_identifier_and_advance()  # var_name
         while self.get_token() == ",":
             self.print_symbol_and_advance()  # ,
             self.print_keyword_and_advance()  # var_name
@@ -166,7 +184,7 @@ class CompilationEngine:
         self.open_main_xml("doStatement")
         self.print_keyword_and_advance()
         self.subroutine_call()
-        self.advance()
+        #self.advance()
         self.print_symbol()
         self.close_main_xml("doStatement")
 
@@ -180,7 +198,7 @@ class CompilationEngine:
             self.compile_expression_and_advance()
             self.print_symbol_and_advance()
         self.print_symbol_and_advance()
-        self.compile_expression_and_advance()
+        self.compile_expression()
         self.print_symbol()
         self.close_main_xml("letStatement")
         # TODO
@@ -214,7 +232,7 @@ class CompilationEngine:
         self.open_main_xml("ifStatement")
         self.print_keyword_and_advance()  # if
         self.print_symbol_and_advance()  # (
-        self.compile_expression_and_advance()  # expressions
+        self.compile_expression()  # expressions
         self.print_symbol_and_advance()  # )
         self.print_symbol_and_advance()  # {
         self.compile_statements_and_advance()  # statements
@@ -256,7 +274,7 @@ class CompilationEngine:
         # 5. יכול לבוא ספרוטין קול במקרה של סוגריים
         # 6. כלומר במקרה של סוגריים נצטרך לבוק מה יש בפנים
         self.open_main_xml("term")
-        self.advance()
+        #self.advance()
         token_type, token = self.JackTokenizer.token_type(), self.get_token()
         if token_type == "INT_CONST":
             self.print_int_constant()
@@ -351,7 +369,8 @@ class CompilationEngine:
         self.os.write(self.spaces + f"<{txt}>")
 
     def close_xml(self, txt):
-        self.open_xml('/' + txt)
+        self.os.write(f"</{txt}>")
+        self.down_line()
 
     def open_main_xml(self, txt):
         self.open_xml(txt)
@@ -360,7 +379,7 @@ class CompilationEngine:
 
     def close_main_xml(self, txt):
         self.remove_spaces()
-        self.close_xml(txt)
+        self.os.write(f"{self.spaces}</{txt}>")
         self.down_line()
 
     def term_type(self):
@@ -381,7 +400,8 @@ class CompilationEngine:
 
     def print_keyword_constant(self):
         self.open_xml("keyword")
-        self.os.write(self.spaces + f"{keyword_switch[self.JackTokenizer.keyword()]}")
+        temp1=self.JackTokenizer.keyword()
+        self.os.write(f" {keyword_switch[self.JackTokenizer.keyword()]}")
         self.close_xml("keyword")
 
     def print_keyword_and_advance(self):
@@ -405,7 +425,8 @@ class CompilationEngine:
 
     def print_symbol(self):
         self.open_xml("symbol")
-        self.os.write(self.spaces + f"{symbol_switch[self.JackTokenizer.symbol()]}")
+        temp1=self.JackTokenizer.get_token()
+        self.os.write(f" {symbol_switch[self.JackTokenizer.symbol()]}")
         self.close_xml("symbol")
 
     def print_symbol_and_advance(self):
@@ -414,7 +435,8 @@ class CompilationEngine:
 
     def print_identifier(self):
         self.open_xml("identifier")
-        self.os.write(self.spaces + f"{symbol_switch[self.JackTokenizer.identifier()]}")
+
+        self.os.write(f" {self.JackTokenizer.identifier()} ")
         self.close_xml("identifier")
 
     def print_identifier_and_advance(self):
