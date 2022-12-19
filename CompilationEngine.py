@@ -159,7 +159,7 @@ class CompilationEngine:
 
     def compile_var_dec(self) -> None:
         # field|static type car_name (,var_name)* ;
-        self.open_main_xml("varDec")
+        self.open_main_xml("VarDec")
         self.print_keyword_and_advance()  # field|static
         if self.get_token() in keyWords.keys():
             self.print_keyword_and_advance()  # exist type
@@ -170,7 +170,7 @@ class CompilationEngine:
             self.print_symbol_and_advance()  # ,
             self.print_identifier_and_advance()  # var_name
         self.print_symbol()
-        self.close_main_xml("varDec")
+        self.close_main_xml("VarDec")
 
     def compile_statements(self) -> None:
         """Compiles a sequence of statements, not including the enclosing
@@ -409,7 +409,7 @@ class CompilationEngine:
 
     def print_str_constant(self):
         self.open_xml("stringConstant")
-        self.os.write(self.spaces + f"{self.JackTokenizer.string_val()}")
+        self.os.write(f" {self.JackTokenizer.string_val()} ")
         self.close_xml("stringConstant")
 
     def print_keyword_constant(self):
