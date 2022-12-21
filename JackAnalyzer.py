@@ -48,6 +48,10 @@ def analyze_file(
     # print("</tokens>")
     while tokenizer.has_more_tokens():
         engine.compile_class()
+        # print(tokenizer.get_token())
+    # for l in tokenizer.file:
+    #     print(l)
+
 
 
 if "__main__" == __name__:

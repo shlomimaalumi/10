@@ -8,12 +8,12 @@ Unported [License](https://creativecommons.org/licenses/by-nc-sa/3.0/).
 import typing
 import re
 
-last_one=''
+last_one = ''
 
 keyword_list = ['class', 'constructor', 'function', 'method', 'field',
                 'static', 'var', 'int', 'char', 'boolean', 'void', 'true',
                 'false', 'null', 'this', 'let', 'do', 'if', 'else',
-                'while', 'return', 'String']
+                'while', 'return']
 
 keyWords = \
     {'boolean': 'BOOLEAN', 'char': 'CHAR', 'class': 'CLASS',
@@ -21,8 +21,7 @@ keyWords = \
      'false': 'FALSE', 'field': 'FIELD', 'function': 'FUNCTION', 'if': 'IF',
      'int': 'INT', 'let': 'LET', 'method': 'METHOD', 'null': 'NULL',
      'return': 'RETURN', 'static': 'STATIC', 'this': 'THIS', 'true': 'TRUE',
-     'var': 'VAR', 'void': 'VOID', 'while': 'WHILE', "String": "String"}
-
+     'var': 'VAR', 'void': 'VOID', 'while': 'WHILE'}
 
 open_symbols = ['{', '(', '[', '<']
 close_symbols = ['}', ')', ']', '>']
@@ -30,12 +29,17 @@ symbol_list = ['{', '}', '(', ')', '[', ']', '.', ',', ';', '+',
                '-', '*', '/', '&', ',', '<', '>', '=', '~', '^', '#', '|']
 
 temp2 = False
-temp3=False
+temp3 = False
+
+
 # region helper function
 def check_if_var_name(string: str) -> bool:
-
+    if len(string) == 0:
+        return False
     if string[0] == '"':
         string = string[1:]
+    if len(string) == 0:
+        return False
     if string[-1] == '"':
         string = string[:-1]
 
@@ -60,8 +64,6 @@ def is_constant_number(str) -> bool:
 
 
 # endregion
-
-
 
 
 class JackTokenizer:
@@ -204,6 +206,7 @@ class JackTokenizer:
                 f"token_type function error token type unknown\n the input"
                 f" was {self.get_token()}")
 
+
     def keyword(self) -> str:
         """
         Returns:
@@ -276,57 +279,126 @@ class JackTokenizer:
             f"string_val function wrong, the input was: {self.get_token()}")
 
     # region class helper functions
+
     def get_by_lines(self, input_stream: typing.TextIO):
-        pattern, open, close = r'/\*\*(.*?)\*\/', "/*", "*/"
+        # pattern, open, close = r"/\*.*?\*/", "/**", "*/"
+        # is_comment = False
+        # input_lines = input_stream.read().splitlines()
+        # for line in input_lines:
+        #     line = line.strip()
+        #     if '"' not in line:
+        #         line = re.sub(pattern, '', line)
+        #     else:
+        #         while line.rfind('"') < line.rfind("/*") and line.rfind(
+        #                 '/*') < line.rfind("*/"):
+        #             line = line[:line.rfind("/*")]
+        #     line = line.replace('\t', ' ')
+        #     line = line.replace('\\t', ' ')
+        #     line = line.strip()
+        #     if len(line) != 0 and line[:3] == open:
+        #         is_comment = True
+        #         continue
+        #     if len(line) != 0 and is_comment:
+        #         if close in line:
+        #             is_comment = False
+        #         continue
+        #     if close in line:
+        #         is_comment = False
+        #     if len(line) == 0:
+        #         continue
+        #     if len(line) != 0 and '/' == line[0] and line[1] == '/':
+        #         continue
+        #     else:
+        #         line_list = line.split(" ")
+        #         if '//' in line_list:
+        #             comment_idx = line_list.index('//')
+        #             list1 = list(line_list[0:comment_idx])
+        #             str = " ".join(list1).strip()
+        #             if len(str) != 0:
+        #                 if '//' in str:
+        #                     self.file.append(line[:str.rfind('//')])
+        #                 else:
+        #                     self.file.append(str)
+        #         else:
+        #             if len(line) != 0:
+        #                 if '//' in line:
+        #                     self.file.append(line[:line.rfind('//')])
+        #                 else: self.file.append(line)
+        pattern = r'/\*.*?\*/'
         is_comment = False
         input_lines = input_stream.read().splitlines()
-
         for line in input_lines:
             line = line.strip()
             if '"' not in line:
                 line = re.sub(pattern, '', line)
-            else:
-                while line.rfind('"') < line.rfind("/*") and line.rfind(
-                        '/*') < line.rfind("*/"):
-                    line = line[:line.rfind("/*")]
-
-            line = line.replace('\t', ' ')
-            line = line.replace('\\t', ' ')
             line = line.strip()
-            if len(line) != 0 and line[:3] == open:
-                is_comment = True
+            if len(line) == 0:
                 continue
-            if len(line) != 0 and is_comment and line[0] == '*':
-                if close in line:
-                    is_comment = False
+            if '//' == line[:2]:
                 continue
-            if close in line:
-                is_comment = False
-            if len(line)==0:
-                continue
-            if len(line)!=0 and '/' == line[0] and line[1] == '/':
-                continue
-            else:
-                line_list = line.split(" ")
-                if '//' in line_list:
-                    comment_idx = line_list.index('//')
-                    list1 = list(line_list[0:comment_idx])
-                    str = " ".join(list1).strip()
-                    if len(str)!=0:
-                        self.file.append(str)
+            self.file.append(line)
+        self.remove_slashes()
+        self.remove_multy_comment()
+        self.remove_comments()
+
+    def remove_slashes(self):
+        flag, comment = False, '//'
+        for row,line in enumerate(self.file):
+            for ind, c in enumerate(line):
+                if c == '"':
+                    flag = not flag
+                if flag:  # ignore what between " "
+                    continue
+                if ind + 1 < len(line) and line[ind:ind + 2] == comment:
+                    self.file[row] = line[:ind]
+                    break
+
+    def remove_comments(self):
+        pattern = r'/\*.*?\*/'
+        flag, comment = False, '*/'
+        for row,line in enumerate(self.file):
+            self.file[row] = re.sub(pattern, '', line)
+        self.file=[x for x in self.file if len(x)!=0]
+
+
+    def remove_multy_comment(self):
+
+        # / **
+        # *Encapsulates a board for the RushHour game.
+        # * /
+        flag, flag2, close, open, open_multi = False, False, '*/', '/*','/**'
+        for row,line in enumerate(self.file):
+            if flag2:
+                if close not in line:
+                    self.file[row] = open + line + close
+                    continue
                 else:
-                    if len(line) != 0:
-                        self.file.append(line)
+                    self.file[row] = line[line.find(close)+2:]
+            for ind, c in enumerate(line):
+                if c == '"':
+                    flag = not flag
+                if flag:  # ignore what between " "
+                    continue
+                if ind + 1 < len(line) and line[ind:ind + 2] == open:
+                    flag2 = True
+                if ind + 1 < len(line) and line[ind:ind + 2] == close:
+                    flag2 = False
+
+                if (not flag) and c in['\t','\\t']:
+                    self.file[row]=line[:ind]+' '+line[ind+1:]
+            if flag2:
+                self.file[row]=line+close
+
 
     def token_word(self, word: str):
-        global last_one,temp3
-        if len(word)!=0 and word[0] =='"' and len(last_one)!=0:
-            if temp3==True:
-                last_one+=' '
-            self.tokens.append(last_one+'"')
+        global last_one, temp3
+        if len(word) != 0 and word[0] == '"' and len(last_one) != 0:
+            if temp3 == True:
+                last_one += ' '
+            self.tokens.append(last_one + '"')
             self.token_word(word[1:])
             return
-        last_one=""
+        last_one = ""
         if len(word) == 0:
             return
         elif word in keyword_list:
@@ -346,22 +418,22 @@ class JackTokenizer:
             for ind, c in enumerate(word):
                 if c in symbol_list:
                     temp = word[:ind]
-                    self.tokens.append(word[:ind])
-                    self.token_word(word[ind:])
+                    self.tokens.append(word[:ind].strip())
+                    self.token_word(word[ind:].strip())
                     return
-        last_one=word
+        last_one = word
 
     def get_by_tokens(self):
         global temp3
-        for ind,line in enumerate(self.file):
+        for ind, line in enumerate(self.file):
             line2 = line.split()
             # if ind< len(self.file)-1 and self.file[ind+1]=='"':
             #     line+='"'
             # if line == '"':
             #     continue
-            temp3=False
-            if line.rfind('"')>0 and line[line.rfind('"')-1]==' ':
-                temp3=True
+            temp3 = False
+            if line.rfind('"') > 0 and line[line.rfind('"') - 1] == ' ':
+                temp3 = True
 
             for word in line2:
                 self.token_word(word)
@@ -370,10 +442,15 @@ class JackTokenizer:
         flag = False
         new_list = []
         txt = ""
-        for symbol in self.tokens:
+        last = "."
+        for row,symbol in enumerate(self.tokens):
+            if symbol == ' "S1"':
+                x=8
+            symbol=symbol.strip()
             if symbol[0] == '"' and symbol[-1] != '"':
                 flag = True
                 txt += symbol
+                last = symbol
             elif symbol[-1] == '"' and symbol[-1] == '"':
                 flag = False
                 txt += " "
@@ -381,10 +458,12 @@ class JackTokenizer:
                 new_list.append(txt)
                 txt = ""
             elif flag:
-                txt += " "
+                if symbol not in symbol_list and last not in symbol_list:
+                    txt += " "
                 txt += symbol
+                last = symbol
             else:
-                new_list.append(symbol)
+                new_list.append(symbol.strip())
         self.tokens = new_list
 
     def get_token(self):

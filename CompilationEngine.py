@@ -19,7 +19,7 @@ keyWords = {'boolean': 'BOOLEAN', 'char': 'CHAR', 'class': 'CLASS',
             'false': 'FALSE', 'field': 'FIELD', 'function': 'FUNCTION', 'if': 'IF',
             'int': 'INT', 'let': 'LET', 'method': 'METHOD', 'null': 'NULL',
             'return': 'RETURN', 'static': 'STATIC', 'this': 'THIS', 'true': 'TRUE',
-            'var': 'VAR', 'void': 'VOID', 'while': 'WHILE', "String": "String"}
+            'var': 'VAR', 'void': 'VOID', 'while': 'WHILE'}
 
 symbols = \
     {'&', '(', ')', '*', '+', ',', '-', '.', '/', ';', '<', '=', '>', '[', ']',
@@ -31,7 +31,7 @@ keyword_switch = \
      'FALSE': 'false', 'FIELD': 'field', 'FUNCTION': 'function', 'IF': 'if',
      'INT': 'int', 'LET': 'let', 'METHOD': 'method', 'NULL': 'null',
      'RETURN': 'return', 'STATIC': 'static', 'THIS': 'this', 'TRUE': 'true',
-     'VAR': 'var', 'VOID': 'void', 'WHILE': 'while', "String": "String"}
+     'VAR': 'var', 'VOID': 'void', 'WHILE': 'while'}
 
 symbol_switch = \
     {'&': '&amp;', '(': '(', ')': ')', '*': '*', '+': '+', ',': ',', '-': '-',
@@ -168,6 +168,7 @@ class CompilationEngine:
         # field|static type car_name (,var_name)* ;
         self.open_main_xml("varDec")
         self.print_keyword_and_advance()  # field|static
+
         if self.get_token() in keyWords.keys():
             self.print_keyword_and_advance()  # exist type
         else:
@@ -287,12 +288,7 @@ class CompilationEngine:
         part of this term and should not be advanced over.
         """
         # Your code goes here!
-        # 1. לבדוק האם מדובר בפותח או סוגר או נקודה
-        # 2. אם פותחים יש צורך לקרוא לאספרישן.
-        # 3. אם סוגרים סיימנו טרם
-        # 4. יש אופציה לסוגרים ואז אונארי ואז טרם
-        # 5. יכול לבוא ספרוטין קול במקרה של סוגריים
-        # 6. כלומר במקרה של סוגריים נצטרך לבוק מה יש בפנים
+
         self.open_main_xml("term")
         # self.advance()
         token_type, token = self.JackTokenizer.token_type(), self.get_token()
