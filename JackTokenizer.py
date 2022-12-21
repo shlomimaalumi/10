@@ -160,10 +160,16 @@ class JackTokenizer:
         self.pos = 0
         self.file = []
         self.tokens = []
+        input_lines = input_stream.read().splitlines()
+        for line in input_lines:
+            self.file.append(line)
+        self.remove_slashes()
+        self.remove_multy_comment()
+        self.remove_comments()
         self.get_by_lines(input_stream)
         # self.tokens_type_list = []
         self.get_by_tokens()
-        self.connect_strings()
+        #self.connect_strings()
 
     def has_more_tokens(self) -> bool:
         """Do we have more tokens in the input?
@@ -326,8 +332,8 @@ class JackTokenizer:
         #                 else: self.file.append(line)
         pattern = r'/\*.*?\*/'
         is_comment = False
-        input_lines = input_stream.read().splitlines()
-        for line in input_lines:
+        new_list=[]
+        for line in self.file:
             line = line.strip()
             if '"' not in line:
                 line = re.sub(pattern, '', line)
@@ -336,10 +342,16 @@ class JackTokenizer:
                 continue
             if '//' == line[:2]:
                 continue
-            self.file.append(line)
-        self.remove_slashes()
-        self.remove_multy_comment()
-        self.remove_comments()
+            while line.count('"')>=2:
+                start,end=line.index('"'),find_2th(line)
+                new_list.append(line[:start])
+                new_list.append(line[start:end+1])
+                if end+1>= len(line):
+                    continue
+                line=line[end+1:]
+            new_list.append(line)
+        self.file=new_list
+
 
     def remove_slashes(self):
         flag, comment = False, '//'
@@ -382,6 +394,8 @@ class JackTokenizer:
                 if ind + 1 < len(line) and line[ind:ind + 2] == open:
                     flag2 = True
                 if ind + 1 < len(line) and line[ind:ind + 2] == close:
+                    temp=open+line
+                    self.file[row]=temp
                     flag2 = False
 
                 if (not flag) and c in['\t','\\t']:
@@ -392,12 +406,7 @@ class JackTokenizer:
 
     def token_word(self, word: str):
         global last_one, temp3
-        if len(word) != 0 and word[0] == '"' and len(last_one) != 0:
-            if temp3 == True:
-                last_one += ' '
-            self.tokens.append(last_one + '"')
-            self.token_word(word[1:])
-            return
+
         last_one = ""
         if len(word) == 0:
             return
@@ -426,6 +435,9 @@ class JackTokenizer:
     def get_by_tokens(self):
         global temp3
         for ind, line in enumerate(self.file):
+            if len(line) != 0 and line[0] == '"':
+                self.tokens.append(line)
+                continue
             line2 = line.split()
             # if ind< len(self.file)-1 and self.file[ind+1]=='"':
             #     line+='"'
@@ -439,31 +451,67 @@ class JackTokenizer:
                 self.token_word(word)
 
     def connect_strings(self):
-        flag = False
+        flag = True
         new_list = []
         txt = ""
         last = "."
-        for row,symbol in enumerate(self.tokens):
-            if symbol == ' "S1"':
+        for row, symbol in enumerate(self.tokens):
+            # if symbol[0] == '"' and symbol[-1] =='"':
+            #     new_list.append(symbol.strip())
+            #     continue
+            #
+            # if symbol[0] == '"' and symbol[-1] != '"':
+            #     flag = True
+            #     txt += symbol
+            #     last = symbol
+            # elif symbol[-1] == '"':
+            #     flag = False
+            #     txt += " "
+            #     txt += symbol
+            #     new_list.append(txt)
+            #     txt = ""
+            # elif flag:
+            #     if symbol not in symbol_list and last not in symbol_list:
+            #         txt += " "
+            #     txt += symbol
+            #     last = symbol
+            # else:
+            #     new_list.append(symbol.strip())
+            if symbol=="do":
                 x=8
-            symbol=symbol.strip()
-            if symbol[0] == '"' and symbol[-1] != '"':
-                flag = True
-                txt += symbol
-                last = symbol
-            elif symbol[-1] == '"' and symbol[-1] == '"':
-                flag = False
-                txt += " "
-                txt += symbol
-                new_list.append(txt)
-                txt = ""
-            elif flag:
-                if symbol not in symbol_list and last not in symbol_list:
-                    txt += " "
-                txt += symbol
-                last = symbol
+
+            if flag:
+                while len(symbol) != 0 and symbol[0] in symbol_list:
+                    new_list.append(symbol[0])
+                    symbol = symbol[1:]
+                if len(symbol) == 0:
+                    continue
+            if '"' not in symbol and flag:
+                new_list.append(symbol)
             else:
-                new_list.append(symbol.strip())
+                if symbol[0] == '"':
+                    if not flag:
+                        flag = True
+                        txt += " " + symbol
+                        new_list.append(txt)
+                        txt = ""
+                        continue
+
+                    flag = False
+                    txt = symbol
+                    if symbol[-1] == '"':
+                        new_list.append(symbol)
+                        flag = True
+                        continue
+                else:
+                    if txt[-1] in symbol_list:
+
+                        txt += " " + symbol
+                    if symbol[-1] == '"':
+                        flag = True
+                        new_list.append(txt)
+                        txt = ""
+                # if symbol == '"':
         self.tokens = new_list
 
     def get_token(self):
@@ -474,3 +522,11 @@ class JackTokenizer:
     # TODO return empty srting instead of raise
 
     # endregion
+def find_2th(string, needle='"', n=2):
+    start = string.find(needle)
+    while start >= 0 and n > 1:
+        start = string.find(needle, start+len(needle))
+        n -= 1
+    return start
+
+
