@@ -180,7 +180,7 @@ class JackTokenizer:
         return self.pos < len(self.tokens)
 
     def advance(self) -> None:
-        """Gets the next token from the input and makes it the current token. 
+        """Gets the next token from the input and makes it the current token.
         This method should be called if it has_more_tokens() is true.
         Initially there is no current token.
         """
@@ -211,7 +211,6 @@ class JackTokenizer:
             raise TypeError(
                 f"token_type function error token type unknown\n the input"
                 f" was {self.get_token()}")
-
 
     def keyword(self) -> str:
         """
@@ -355,7 +354,7 @@ class JackTokenizer:
 
     def remove_slashes(self):
         flag, comment = False, '//'
-        for row,line in enumerate(self.file):
+        for row, line in enumerate(self.file):
             for ind, c in enumerate(line):
                 if c == '"':
                     flag = not flag
@@ -368,24 +367,23 @@ class JackTokenizer:
     def remove_comments(self):
         pattern = r'/\*.*?\*/'
         flag, comment = False, '*/'
-        for row,line in enumerate(self.file):
+        for row, line in enumerate(self.file):
             self.file[row] = re.sub(pattern, '', line)
-        self.file=[x for x in self.file if len(x)!=0]
-
+        self.file = [x for x in self.file if len(x) != 0]
 
     def remove_multy_comment(self):
 
         # / **
         # *Encapsulates a board for the RushHour game.
         # * /
-        flag, flag2, close, open, open_multi = False, False, '*/', '/*','/**'
-        for row,line in enumerate(self.file):
+        flag, flag2, close, open, open_multi = False, False, '*/', '/*', '/**'
+        for row, line in enumerate(self.file):
             if flag2:
                 if close not in line:
                     self.file[row] = open + line + close
                     continue
                 else:
-                    self.file[row] = line[line.find(close)+2:]
+                    self.file[row] = line[line.find(close) + 2:]
             for ind, c in enumerate(line):
                 if c == '"':
                     flag = not flag
@@ -398,11 +396,10 @@ class JackTokenizer:
                     self.file[row]=temp
                     flag2 = False
 
-                if (not flag) and c in['\t','\\t']:
-                    self.file[row]=line[:ind]+' '+line[ind+1:]
+                if (not flag) and c in ['\t', '\\t']:
+                    self.file[row] = self.file[row][:ind] + ' ' + line[ind + 1:]
             if flag2:
-                self.file[row]=line+close
-
+                self.file[row] = line + close
 
     def token_word(self, word: str):
         global last_one, temp3
